@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,11 @@ namespace QiByte
     public class StackOne
     {
         public List<int> Stack = new List<int>();
+        public List<Action<Token>> actionStack = new List<Action<Token>>();
+        public List<Token> actionStackP = new List<Token>();
+        public Dictionary<string, int> labelList = new Dictionary<string, int>();
+
+        int i = 0;
 
         public StackOne() { }
 
@@ -31,6 +37,17 @@ namespace QiByte
         // 0x18 - logic right shift
         // 0x19 - bitwise not
 
+        public void SetLabel(Token _t) {
+            labelList.Add(_t.val, i);
+        }
 
+        public void Adavnce() { i++; }
+
+        public void Start(){
+            while (i < actionStack.Count) {
+                actionStack[i].Invoke(actionStackP[i]);
+                Adavnce();
+            }
+        }
     }
 }

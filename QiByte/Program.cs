@@ -20,43 +20,52 @@ namespace QiByte
                     if (Peek().val == "PUSH") {
                         Token t = Advance();
                         if (t.tType == TokenType.NUM) {
-                            stack.PUSH(t);
+                            stack.actionStack.Add(_ => stack.PUSH(t));
+                            stack.actionStackP.Add(t);
                         }
-                    } else  if (Peek().val == "POP") {
-                        stack.POP();
-                    } else if (Peek().val == "DUP") {
-                        stack.DUP();
-                    } else if (Peek().val == "SAWP") {
-                        stack.SWAP();
-                    } else if (Peek().val == "OVER") {
-                        stack.OVER();
-                    } else if (Peek().val == "DROP2") {
-                        stack.DROP2();
-                    }
-                    else if (Peek().val == "ADD")
-                    {
-                        stack.ADD();
-                    }
-                    else if (Peek().val == "DROP2")
-                    {
-                        stack.DROP2();
-                    }
-                    else if (Peek().val == "DROP2")
-                    {
-                        stack.DROP2();
-                    }
-                    else if (Peek().val == "DROP2")
-                    {
-                        stack.DROP2();
-                    }
-                    else if (Peek().val == "DROP2")
-                    {
-                        stack.DROP2();
+                    } else {
+                        Token name = new Token("");
+
+                        if (Peek().val == "POP") {
+                            stack.actionStack.Add(_ => stack.POP());
+                        } else if (Peek().val == "DUP") {
+                            stack.actionStack.Add(_ => stack.DUP()); }
+                        else if (Peek().val == "SAWP") {
+                            stack.actionStack.Add(_ => stack.SWAP());
+                        } else if (Peek().val == "OVER") {
+                            stack.actionStack.Add(_ => stack.OVER());
+                        } else if (Peek().val == "DROP2") {
+                            stack.actionStack.Add(_ => stack.DROP2());
+                        } else if (Peek().val == "ADD") {
+                            stack.actionStack.Add(_ => stack.ADD());
+                        } else if (Peek().val == "SUB") {
+                            stack.actionStack.Add(_ => stack.SUB());
+                        } else if (Peek().val == "MUL") {
+                            stack.actionStack.Add(_ => stack.MUL());
+                        } else if (Peek().val == "DIV") {
+                            stack.actionStack.Add(_ => stack.DIV());
+                        } else if (Peek().val == "MOD") {
+                            stack.actionStack.Add(_ => stack.MOD());
+                        } else if (Peek().val == "NEG") {
+                            stack.actionStack.Add(_ => stack.NEG());
+                        } else if (Peek().val == "JMP") {
+                          //  stack.actionStack.Add(_ => stack.JMP());
+                        } else {
+                            name = Peek();
+
+                            Advance();
+
+                            if(Peek().val == ":") {  stack.actionStack.Add(_ => stack.SetLabel(name)); }
+                        }
+
+                        stack.actionStackP.Add((name != null) ? name : null);
                     }
                 }
 
                 if (Peek() == null) { break; } else { if (index < tokens.Count - 1) { Advance(); } else { break; } }
             }
+
+            stack.Start();
         }
 
         static List<Token> Parse(string _input) {
